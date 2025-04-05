@@ -68,22 +68,23 @@ jobs:
           path: build/${{ matrix.tagretPlatform }}
       
       # Release on itch 
+      # stuck in login 
       
-      - name : Install Itch butler
-        run: |
-          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
-          unzip butler.zip 
-          chmod +x butler
-          sudo mv butler /usr/local/bin
+      # - name : Install Itch butler
+      #  run: |
+      #     curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+      #     unzip butler.zip 
+      #     chmod +x butler
+      #     sudo mv butler /usr/local/bin
       
-      - name: Login to Itch
-        env:
-          ITCHIO_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        run: |
-          butler login --identity $ITCHIO_API_KEY
+      # - name: Login to Itch
+      #   env:
+      #     ITCHIO_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      #   run: |
+      #     echo $ITCHIO_API_KEY | butler login
       
-      - name: upload to Itch
-        env:
-          USER_GAME: ${{ secrets.USER_GAME }}
-        run: |
-          butler push build/${{matrix.tagretPlatform}}  USER_GAME:${{matrix.tagretPlatform}}
+      # - name: upload to Itch
+      #   env:
+      #     USER_GAME: ${{ secrets.USER_GAME }}
+      #   run: |
+      #     butler push build/${{matrix.tagretPlatform}}  USER_GAME:${{matrix.tagretPlatform}}
