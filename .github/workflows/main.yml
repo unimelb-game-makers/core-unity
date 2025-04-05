@@ -4,9 +4,13 @@ on: [push, pull_request]
 
 jobs:
 
-  build:
+  preparing_build:
     name: Build my project ✨
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tagretPlatform: [WebGL, StandaloneWindows64]
+        
     steps:
       # Checkout
       - name: Checkout repository
@@ -40,27 +44,18 @@ jobs:
           restore-keys: |
             Library-
 
-      # Build
-      - name: Build project for WebGL
+
+      - name: Build project 
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: WebGL
-      # build for windows   
-      - name: Build project for windows
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          targetPlatform: StandaloneWindows64
-  
+          targetPlatform: ${{ matrix.tagretPlatform }}
+
       # Output
       - uses: actions/upload-artifact@v4
         with:
-          name: Build
-          path: build
+          name: Build-${{ matrix.tagretPlatform }}
+          path: builds/${{ matrix.tagretPlatform }}
