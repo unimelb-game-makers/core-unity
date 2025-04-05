@@ -80,7 +80,7 @@ jobs:
         env:
           ITCHIO_API_KEY: ${{ secrets.BUTLER_API_KEY }}
         run: |
-          butler login --api-key $ITCHIO_API_KEY
+          butler login --identity $ITCHIO_API_KEY
       
       - name: upload to Itch
         env:
