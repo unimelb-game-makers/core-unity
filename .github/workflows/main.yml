@@ -1,5 +1,11 @@
-name: Actions 😎
+# Serect:
+# 1. UNITY_LICENSE: Unity license file content
+# 2. UNITY_EMAIL: Unity account email
+# 3. UNITY_PASSWORD: Unity account password
+# 4. BUTLER_API_KEY: Itch.io account API key
+# 5. USER_GAME: Itch.io Project website( e.g. https://itch.io/user/game-name )
 
+name: Actions 😎
 on: [push, pull_request]
 
 jobs:
@@ -10,6 +16,7 @@ jobs:
     strategy:
       matrix:
         tagretPlatform: [WebGL, StandaloneWindows64]
+
         
     steps:
       # Checkout
@@ -44,7 +51,7 @@ jobs:
           restore-keys: |
             Library--${{ matrix.targetPlatform }}
 
-
+      # Build
       - name: Build project 
         uses: game-ci/unity-builder@v4
         env:
@@ -59,3 +66,24 @@ jobs:
         with:
           name: build-${{ matrix.tagretPlatform }}
           path: build/${{ matrix.tagretPlatform }}
+      
+      # Release on itch 
+      
+      - name : Install Itch butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip 
+          chmod +x butler
+          sudo mv butler /usr/local/bin
+      
+      - name: Login to Itch
+        env:
+          ITCHIO_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          butler login --api-key $ITCHIO_API_KEY
+      
+      - name: upload to Itch
+        env:
+          USER_GAME: ${{ secrets.USER_GAME }}
+        run: |
+          butler push build/${{matrix.tagretPlatform}}  USER_GAME:${{matrix.tagretPlatform}}
