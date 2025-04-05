@@ -40,9 +40,9 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}-${{ matrix.targetPlatform }}
           restore-keys: |
-            Library-
+            Library--${{ matrix.targetPlatform }}
 
 
       - name: Build project 
@@ -57,5 +57,5 @@ jobs:
       # Output
       - uses: actions/upload-artifact@v4
         with:
-          name: Build-${{ matrix.tagretPlatform }}
-          path: builds/${{ matrix.tagretPlatform }}
+          name: build-${{ matrix.tagretPlatform }}
+          path: build/${{ matrix.tagretPlatform }}
