@@ -9,10 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Unity license
-        if: ${{secrets.UsNITY_LICENSE == '' || secrets.UNITY_EMAIL == '' || secrets.UNITY_PASSWORD == ''}}
+        if: secrets.UsNITY_LICENSE == '' || secrets.UNITY_EMAIL == '' || secrets.UNITY_PASSWORD == ''
         run: |
-           echo "No Unity Licese found!"
-           exit 1
+          
+          echo "No Unity Licese found!"
+          exit 1
         
 
   build:
