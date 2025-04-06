@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tagretPlatform: [WebGL, StandaloneWindows64]
+        targetPlatform: [WebGL, StandaloneWindows64]
 
         
     steps:
