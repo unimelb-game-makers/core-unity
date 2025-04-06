@@ -40,7 +40,7 @@ jobs:
           fi
       - name: Check Unity Version
         run: |
-          if [ -z "${{ vars.UNITY_PASSWORD }}" ]; then
+          if [ -z "${{ vars.UNITY_VERSION }}" ]; then
             echo "UNITY_VERSION is not set"
             exit 1
           fi
