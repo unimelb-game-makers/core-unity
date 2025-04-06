@@ -1,4 +1,4 @@
-#  Github Action Serect:
+#  GitHub Action Secret:
 #  UNITY_LICENSE: Unity license file content
 #  UNITY_EMAIL: Unity account email
 #  UNITY_PASSWORD: Unity account password
@@ -15,7 +15,7 @@ jobs:
 
   # check if the variables and secrets are set
   validation:
-    name : Check serect and variable
+    name : Check secret and variable
     runs-on: ubuntu-latest
     steps:
       - name: Check Unity License
