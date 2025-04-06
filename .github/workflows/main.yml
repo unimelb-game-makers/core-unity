@@ -1,38 +1,127 @@
-name: Actions 😎
+#  GitHub Action Secret:
+#  UNITY_LICENSE: Unity license file content
+#  UNITY_EMAIL: Unity account email
+#  UNITY_PASSWORD: Unity account password
+#  BUTLER_API_KEY: Itch.io account API key
+#  USER_GAME: Itch.io Project website( e.g. https://itch.io/user/game-name )
 
+#  Github Action Variables:
+#  UNITY_VERSION: Unity version (e.g. 2023.2.9f1)
+
+name: Actions 😎
 on: [push, pull_request]
 
 jobs:
+
+  # check if the variables and secrets are set
+  validation:
+    name : Check secret and variable
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Unity License
+        run: |
+          if [ -z "${{ secrets.UNITY_LICENSE }}" ]; then
+            echo "UNITY_LICENSE is not set"
+            exit 1
+          fi
+
+      - name: Check Unity Email
+        run: |
+          if [ -z "${{ secrets.UNITY_EMAIL }}" ]; then
+            echo "UNITY_EMAIL is not set"
+            exit 1
+          fi
+
+      - name: Check Unity Password
+        run: |
+          if [ -z "${{ secrets.UNITY_PASSWORD }}" ]; then
+            echo "UNITY_PASSWORD is not set"
+            exit 1
+          fi
+      - name: Check Unity Version
+        run: |
+          if [ -z "${{ vars.UNITY_VERSION }}" ]; then
+            echo "UNITY_VERSION is not set"
+            exit 1
+          fi
+  
+
   build:
     name: Build my project ✨
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        targetPlatform: [WebGL, StandaloneWindows64]
+
+        
     steps:
       # Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
+          
+      # Git LFS
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
 
       # Cache
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}-${{ matrix.targetPlatform }}
           restore-keys: |
-            Library-
+            Library--${{ matrix.targetPlatform }}
 
       # Build
-      - name: Build project
+      - name: Build project 
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: WebGL
+          targetPlatform: ${{ matrix.targetPlatform }}
+          unityVersion: ${{ vars.UNITY_VERSION }}
 
       # Output
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: Build
-          path: build
+          name: build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+      
+      # Release on itch 
+      # stuck in login 
+      
+      # - name : Install Itch butler
+      #  run: |
+      #     curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+      #     unzip butler.zip 
+      #     chmod +x butler
+      #     sudo mv butler /usr/local/bin
+      
+      # - name: Login to Itch
+      #   env:
+      #     ITCHIO_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      #   run: |
+      #     echo $ITCHIO_API_KEY | butler login
+      
+      # - name: upload to Itch
+      #   env:
+      #     USER_GAME: ${{ secrets.USER_GAME }}
+      #   run: |
+      #     butler push build/${{matrix.targetPlatform}}  USER_GAME:${{matrix.targetPlatform}}
