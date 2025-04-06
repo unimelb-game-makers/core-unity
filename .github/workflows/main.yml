@@ -1,38 +1,90 @@
-name: Actions 😎
+# Serect:
+# 1. UNITY_LICENSE: Unity license file content
+# 2. UNITY_EMAIL: Unity account email
+# 3. UNITY_PASSWORD: Unity account password
+# 4. BUTLER_API_KEY: Itch.io account API key
+# 5. USER_GAME: Itch.io Project website( e.g. https://itch.io/user/game-name )
 
+name: Actions 😎
 on: [push, pull_request]
 
 jobs:
-  build:
+
+  preparing_build:
     name: Build my project ✨
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tagretPlatform: [WebGL, StandaloneWindows64]
+
+        
     steps:
       # Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
+          
+      # Git LFS
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
 
       # Cache
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}-${{ matrix.targetPlatform }}
           restore-keys: |
-            Library-
+            Library--${{ matrix.targetPlatform }}
 
       # Build
-      - name: Build project
+      - name: Build project 
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: WebGL
+          targetPlatform: ${{ matrix.tagretPlatform }}
 
       # Output
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: Build
-          path: build
+          name: build-${{ matrix.tagretPlatform }}
+          path: build/${{ matrix.tagretPlatform }}
+      
+      # Release on itch 
+      # stuck in login 
+      
+      # - name : Install Itch butler
+      #  run: |
+      #     curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+      #     unzip butler.zip 
+      #     chmod +x butler
+      #     sudo mv butler /usr/local/bin
+      
+      # - name: Login to Itch
+      #   env:
+      #     ITCHIO_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      #   run: |
+      #     echo $ITCHIO_API_KEY | butler login
+      
+      # - name: upload to Itch
+      #   env:
+      #     USER_GAME: ${{ secrets.USER_GAME }}
+      #   run: |
+      #     butler push build/${{matrix.tagretPlatform}}  USER_GAME:${{matrix.tagretPlatform}}
