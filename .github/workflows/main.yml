@@ -59,7 +59,7 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: ${{ matrix.tagretPlatform }}
+          targetPlatform: ${{ matrix.targetPlatform }}
 
       # Output
       - uses: actions/upload-artifact@v4
