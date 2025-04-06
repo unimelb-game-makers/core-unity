@@ -87,4 +87,4 @@ jobs:
       #   env:
       #     USER_GAME: ${{ secrets.USER_GAME }}
       #   run: |
-      #     butler push build/${{matrix.tagretPlatform}}  USER_GAME:${{matrix.tagretPlatform}}
+      #     butler push build/${{matrix.targetPlatform}}  USER_GAME:${{matrix.targetPlatform}}
