@@ -65,7 +65,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.targetPlatform }}
-          path: build/${{ matrix.tagretPlatform }}
+          path: build/${{ matrix.targetPlatform }}
       
       # Release on itch 
       # stuck in login 
