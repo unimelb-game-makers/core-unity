@@ -64,7 +64,7 @@ jobs:
       # Output
       - uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.tagretPlatform }}
+          name: build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.tagretPlatform }}
       
       # Release on itch 
