@@ -23,6 +23,7 @@ jobs:
     name: Build Multiple platforms 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false # Allows the job to continue running even if one platform fails
       matrix:
         include:
           - targetPlatform: StandaloneWindows64
@@ -81,8 +82,8 @@ jobs:
           path: build/${{ matrix.targetPlatform }}
       
       # Steam deploy （Write it in a same job to avoid download the build again!）
-      - name: Deploy to Steam
-        if: matrix.targetPlatform == 'StandaloneWindows64'
+      - name: Deploy Windows version to Steam
+        if: ${{ secrets.STEAM_USERNAME != '' && secrets.STEAM_CONFIG_VDF != '' && matrix.targetPlatform == 'StandaloneWindows64'}}
         uses: game-ci/steam-deploy@v3
         with:
           username: ${{ secrets.STEAM_USERNAME }}          
@@ -92,8 +93,8 @@ jobs:
           rootPath: build
           depot1Path: StandaloneWindows64
 
-      - name: Deploy Linux to Steam
-        if: matrix.targetPlatform == 'StandaloneLinux64'
+      - name: Deploy Linux version to Steam
+        if: ${{ secrets.STEAM_USERNAME != '' && secrets.STEAM_CONFIG_VDF != '' && matrix.targetPlatform == 'StandaloneLinux64' }}
         uses: game-ci/steam-deploy@v3
         with:
           username: ${{ secrets.STEAM_USERNAME }}          
@@ -103,8 +104,8 @@ jobs:
           rootPath: build
           depot2Path: StandaloneLinux64
 
-      - name: Deploy macOS to Steam
-        if: matrix.targetPlatform == 'StandaloneOSX'
+      - name: Deploy macOS version to Steam
+        if: ${{ secrets.STEAM_USERNAME != '' && secrets.STEAM_CONFIG_VDF != '' && matrix.targetPlatform == 'StandaloneOSX'}}
         uses: game-ci/steam-deploy@v3
         with:
           username: ${{ secrets.STEAM_USERNAME }}          
