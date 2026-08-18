@@ -82,6 +82,7 @@ jobs:
         with:
           name: ${{ matrix.targetPlatform }}  
           path: build/${{ matrix.targetPlatform }}  
+          retention-days: 7
         
   # Deploy to Steam and itch
   deploy:
